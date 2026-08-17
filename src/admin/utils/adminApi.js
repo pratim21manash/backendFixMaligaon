@@ -37,7 +37,6 @@
 // );
 
 // export default adminApi;
-
 import axios from "axios";
 
 const API_URL =
@@ -45,22 +44,14 @@ const API_URL =
 
 const adminApi = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
+  withCredentials: true, // CRITICAL: This sends cookies automatically
   headers: {
     "Content-Type": "application/json",
   },
 });
 
+// DO NOT add Authorization header - cookies handle authentication
 adminApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem("adminToken");
-
-  if (token) {
-    config.headers = {
-      ...config.headers,
-      Authorization: `Bearer ${token}`,
-    };
-  }
-
   console.log("API Request:", config.method?.toUpperCase(), config.url);
   return config;
 });
@@ -73,8 +64,11 @@ adminApi.interceptors.response.use(
   (error) => {
     console.error("API Error:", error.response?.status, error.response?.data);
 
-    if (error.response?.status === 401) {
-      localStorage.removeItem("adminToken");
+    if (
+      error.response?.status === 401 &&
+      !window.location.pathname.includes("/admin/login")
+    ) {
+      window.location.href = "/admin/login";
     }
 
     return Promise.reject(error);

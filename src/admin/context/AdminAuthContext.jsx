@@ -124,7 +124,6 @@
 
 
 
-
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import adminApi from '../utils/adminApi'
 import { toast } from 'react-hot-toast'
@@ -153,16 +152,14 @@ export const AdminAuthProvider = ({ children }) => {
       const { data } = await adminApi.get('/auth/check')
       console.log('Auth check response:', data)
 
-      const adminData = data?.data || data?.admin || null
-      setAdmin(adminData)
-
-      if (adminData?.token) {
-        localStorage.setItem('adminToken', adminData.token)
+      if (data.success) {
+        setAdmin(data.data)
+      } else {
+        setAdmin(null)
       }
     } catch (error) {
       console.error('Auth check failed:', error)
       setAdmin(null)
-      localStorage.removeItem('adminToken')
     } finally {
       setLoading(false)
     }
@@ -174,18 +171,10 @@ export const AdminAuthProvider = ({ children }) => {
       const { data } = await adminApi.post('/auth/login', { email, password })
       console.log('Login response:', data)
 
-      const adminData = data?.data || data?.admin || null
-      const token = data?.token || adminData?.token
-
       if (data.success) {
-        setAdmin(adminData)
-
-        if (token) {
-          localStorage.setItem('adminToken', token)
-        }
-
+        setAdmin(data.data)
         toast.success('Login successful!')
-        console.log('Login successful, admin set:', adminData)
+        console.log('Login successful, admin set:', data.data)
         return { success: true }
       }
 
@@ -208,7 +197,6 @@ export const AdminAuthProvider = ({ children }) => {
       console.error('Logout error:', error)
     } finally {
       setAdmin(null)
-      localStorage.removeItem('adminToken')
       toast.success('Logged out successfully')
     }
   }
