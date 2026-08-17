@@ -51,12 +51,16 @@ const adminApi = axios.create({
   },
 });
 
-// Add token to requests
 adminApi.interceptors.request.use((config) => {
   const token = localStorage.getItem("adminToken");
+
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers = {
+      ...config.headers,
+      Authorization: `Bearer ${token}`,
+    };
   }
+
   console.log("API Request:", config.method?.toUpperCase(), config.url);
   return config;
 });
@@ -69,12 +73,8 @@ adminApi.interceptors.response.use(
   (error) => {
     console.error("API Error:", error.response?.status, error.response?.data);
 
-    if (
-      error.response?.status === 401 &&
-      !window.location.pathname.includes("/admin/login")
-    ) {
+    if (error.response?.status === 401) {
       localStorage.removeItem("adminToken");
-      window.location.href = "/admin/login";
     }
 
     return Promise.reject(error);

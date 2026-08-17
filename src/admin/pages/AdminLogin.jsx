@@ -24,21 +24,14 @@ const AdminLogin = () => {
     e.preventDefault()
     setError('')
     setLoading(true)
-    
+
     try {
       const result = await login(email, password)
       console.log('Login result:', result)
-      
+
       if (result.success) {
         console.log('Login successful, navigating...')
-        // Force navigation after login
         navigate('/admin/dashboard', { replace: true })
-        // Fallback: if navigate doesn't work, use window.location
-        setTimeout(() => {
-          if (window.location.pathname !== '/admin/dashboard') {
-            window.location.href = '/admin/dashboard'
-          }
-        }, 500)
       } else {
         setError(result.message || 'Login failed')
       }

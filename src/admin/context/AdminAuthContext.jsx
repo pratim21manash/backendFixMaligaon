@@ -153,14 +153,16 @@ export const AdminAuthProvider = ({ children }) => {
       const { data } = await adminApi.get('/auth/check')
       console.log('Auth check response:', data)
 
-      if (data.success) {
-        setAdmin(data.data)
-      } else {
-        setAdmin(null)
+      const adminData = data?.data || data?.admin || null
+      setAdmin(adminData)
+
+      if (adminData?.token) {
+        localStorage.setItem('adminToken', adminData.token)
       }
     } catch (error) {
       console.error('Auth check failed:', error)
       setAdmin(null)
+      localStorage.removeItem('adminToken')
     } finally {
       setLoading(false)
     }
@@ -172,10 +174,18 @@ export const AdminAuthProvider = ({ children }) => {
       const { data } = await adminApi.post('/auth/login', { email, password })
       console.log('Login response:', data)
 
+      const adminData = data?.data || data?.admin || null
+      const token = data?.token || adminData?.token
+
       if (data.success) {
-        setAdmin(data.data)
+        setAdmin(adminData)
+
+        if (token) {
+          localStorage.setItem('adminToken', token)
+        }
+
         toast.success('Login successful!')
-        console.log('Login successful, admin set:', data.data)
+        console.log('Login successful, admin set:', adminData)
         return { success: true }
       }
 
@@ -198,6 +208,7 @@ export const AdminAuthProvider = ({ children }) => {
       console.error('Logout error:', error)
     } finally {
       setAdmin(null)
+      localStorage.removeItem('adminToken')
       toast.success('Logged out successfully')
     }
   }
