@@ -26,7 +26,12 @@ export const getFullFileUrl = (path) => {
   // Ensure path starts with /
   const filePath = path.startsWith("/") ? path : `/${path}`;
 
-  return `${getBackendUrl()}${filePath}`;
+  // If path already contains /uploads/, don't add it again
+  const finalPath = filePath.startsWith("/uploads/")
+    ? filePath
+    : `/uploads/${filePath.replace(/^\/+/, "")}`;
+
+  return `${getBackendUrl()}${finalPath}`;
 };
 
 export default { getBackendUrl, getFullFileUrl };
