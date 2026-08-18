@@ -27,6 +27,22 @@ const CircularsPanel = () => {
     }
   }
 
+  // Get the backend base URL without /api
+  const getBackendUrl = () => {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
+    return baseUrl.replace('/api', '')
+  }
+
+  const getFullFileUrl = (url) => {
+    if (!url) return '#'
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url
+    }
+    const backendUrl = getBackendUrl()
+    const filePath = url.startsWith('/') ? url : `/${url}`
+    return `${backendUrl}${filePath}`
+  }
+
   const formatDateWithTime = (dateStr, timeStr) => {
     if (!dateStr) return ''
     const date = new Date(dateStr)
@@ -110,7 +126,9 @@ const CircularsPanel = () => {
 
   const handleDownloadOriginal = () => {
     if (selectedCircular?.pdf) {
-      window.open(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}${selectedCircular.pdf}`, '_blank')
+      const fileUrl = getFullFileUrl(selectedCircular.pdf)
+      console.log('Opening PDF URL:', fileUrl)
+      window.open(fileUrl, '_blank')
     }
   }
 
@@ -244,6 +262,9 @@ const CircularsPanel = () => {
                       <FileText size={16} />
                       Download Original PDF
                     </button>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Click to download the original circular PDF
+                    </p>
                   </div>
                 )}
               </div>
