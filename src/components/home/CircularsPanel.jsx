@@ -303,8 +303,6 @@
 
 
 
-
-
 import React, { useState, useEffect } from 'react'
 import { Bell, Calendar, Clock, X, Download, FileText } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -317,7 +315,6 @@ const CircularsPanel = () => {
   const [loading, setLoading] = useState(true)
   const [selectedCircular, setSelectedCircular] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [downloading, setDownloading] = useState(false)
 
   useEffect(() => {
     fetchCirculars()
@@ -333,22 +330,6 @@ const CircularsPanel = () => {
     } finally {
       setLoading(false)
     }
-  }
-
-  // Get the backend base URL without /api
-  const getBackendUrl = () => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
-    return baseUrl.replace('/api', '')
-  }
-
-  const getFullFileUrl = (url) => {
-    if (!url) return '#'
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url
-    }
-    const backendUrl = getBackendUrl()
-    const filePath = url.startsWith('/') ? url : `/${url}`
-    return `${backendUrl}${filePath}`
   }
 
   const formatDateWithTime = (dateStr, timeStr) => {
@@ -427,47 +408,19 @@ const CircularsPanel = () => {
     doc.save(`circular-${selectedCircular._id || 'notice'}.pdf`)
   }
 
-  // FORCE DOWNLOAD - This will download the PDF instead of opening in new tab
-  const handleDownloadOriginal = async () => {
-    if (!selectedCircular?.pdf) return
-
-    setDownloading(true)
-    try {
-      const fileUrl = getFullFileUrl(selectedCircular.pdf)
-      console.log('Downloading PDF from:', fileUrl)
-
-      // Fetch the file as blob
-      const response = await fetch(fileUrl)
+  const handleDownloadOriginal = () => {
+    if (selectedCircular?.pdf) {
+      // Get the base URL without /api
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
+      const backendUrl = baseUrl.replace('/api', '')
       
-      if (!response.ok) {
-        throw new Error(`Failed to download: ${response.status}`)
-      }
-
-      const blob = await response.blob()
+      // Construct the full PDF URL - this goes directly to the static file
+      const pdfUrl = `${backendUrl}${selectedCircular.pdf}`
       
-      // Create a download link
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
+      console.log('Downloading PDF from:', pdfUrl)
       
-      // Extract filename from URL or use a default name
-      const fileName = selectedCircular.pdf.split('/').pop() || 'circular.pdf'
-      link.download = fileName
-      
-      // Trigger download
-      document.body.appendChild(link)
-      link.click()
-      
-      // Cleanup
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
-      
-      console.log('Download successful:', fileName)
-    } catch (error) {
-      console.error('Download error:', error)
-      alert('Failed to download the PDF. Please try again.')
-    } finally {
-      setDownloading(false)
+      // Open the PDF in a new tab
+      window.open(pdfUrl, '_blank')
     }
   }
 
@@ -596,20 +549,10 @@ const CircularsPanel = () => {
                   <div className="border-t border-gray-100 pt-4 mt-2">
                     <button
                       onClick={handleDownloadOriginal}
-                      disabled={downloading}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-maroon-600 hover:bg-maroon-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-maroon-600 hover:bg-maroon-700 text-white text-sm font-medium rounded-lg transition-colors"
                     >
-                      {downloading ? (
-                        <>
-                          <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                          Downloading...
-                        </>
-                      ) : (
-                        <>
-                          <FileText size={16} />
-                          Download Original PDF
-                        </>
-                      )}
+                      <FileText size={16} />
+                      Download Original PDF
                     </button>
                     <p className="text-xs text-gray-400 mt-1">
                       Click to download the original circular PDF
