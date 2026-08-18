@@ -124,12 +124,12 @@
 
 // export default Downloads
 
-
 import React, { useState, useEffect } from 'react'
 import { Download, FileText, FileCheck, FileSpreadsheet } from 'lucide-react'
 import PageHeader from '../components/common/PageHeader.jsx'
 import SectionWrapper from '../components/common/SectionWrapper.jsx'
 import api from '../services/api.js'
+import { getFullFileUrl } from '../utils/getFullUrl.js'
 
 const Downloads = () => {
   const [downloads, setDownloads] = useState([])
@@ -150,22 +150,6 @@ const Downloads = () => {
     } finally {
       setLoading(false)
     }
-  }
-
-  // Get the backend base URL without /api
-  const getBackendUrl = () => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
-    return baseUrl.replace('/api', '')
-  }
-
-  const getFullFileUrl = (url) => {
-    if (!url) return '#'
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url
-    }
-    const backendUrl = getBackendUrl()
-    const filePath = url.startsWith('/') ? url : `/${url}`
-    return `${backendUrl}${filePath}`
   }
 
   const handleDownload = (fileUrl, fileName) => {

@@ -210,12 +210,12 @@
 
 
 
-
 import React, { useState, useEffect } from 'react'
 import { Images, X } from 'lucide-react'
 import PageHeader from '../components/common/PageHeader.jsx'
 import SectionWrapper from '../components/common/SectionWrapper.jsx'
 import api from '../services/api.js'
+import { getFullFileUrl } from '../utils/getFullUrl.js'
 
 const Gallery = () => {
   const [galleryData, setGalleryData] = useState([])
@@ -239,22 +239,30 @@ const Gallery = () => {
     }
   }
 
-  const getFullImageUrl = (url) => {
-    if (!url) return ''
-    
-    // If already absolute URL, return as is
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url
+  const openLightbox = (eventIndex, imageIndex) => {
+    const event = galleryData[eventIndex]
+    if (event && event.images && event.images[imageIndex]) {
+      setActiveImage({
+        event,
+        imageIndex,
+        images: event.images
+      })
     }
-    
-    // Remove /api from base URL to get the backend root URL
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
-    const backendUrl = baseUrl.replace('/api', '')
-    
-    // Ensure the URL starts with /
-    const imagePath = url.startsWith('/') ? url : `/${url}`
-    
-    return `${backendUrl}${imagePath}`
+  }
+
+  const closeLightbox = () => {
+    setActiveImage(null)
+  }
+
+  const navigateImage = (direction) => {
+    if (!activeImage) return
+    const newIndex = activeImage.imageIndex + direction
+    if (newIndex >= 0 && newIndex < activeImage.images.length) {
+      setActiveImage({
+        ...activeImage,
+        imageIndex: newIndex
+      })
+    }
   }
 
   if (loading) {
@@ -302,7 +310,7 @@ const Gallery = () => {
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {event.images?.map((img, imgIndex) => {
-                      const imageUrl = getFullImageUrl(img.url)
+                      const imageUrl = getFullFileUrl(img.url)
                       console.log('Image URL:', imageUrl)
                       return (
                         <button
@@ -355,11 +363,11 @@ const Gallery = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={getFullImageUrl(activeImage.images[activeImage.imageIndex].url)}
+              src={getFullFileUrl(activeImage.images[activeImage.imageIndex].url)}
               alt={activeImage.event.eventName}
               className="w-full max-h-[85vh] object-contain rounded-lg"
               onError={(e) => {
-                console.error('Failed to load lightbox image:', getFullImageUrl(activeImage.images[activeImage.imageIndex].url))
+                console.error('Failed to load lightbox image:', getFullFileUrl(activeImage.images[activeImage.imageIndex].url))
                 e.target.src = 'https://via.placeholder.com/800x600?text=Image+Not+Found'
               }}
             />

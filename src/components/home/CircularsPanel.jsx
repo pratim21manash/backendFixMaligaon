@@ -302,13 +302,13 @@
 
 
 
-
 import React, { useState, useEffect } from 'react'
 import { Bell, Calendar, Clock, X, Download, FileText } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import jsPDF from 'jspdf'
 import api from '../../services/api'
 import { schoolInfo } from '../../data/seedData'
+import { getFullFileUrl } from '../../utils/getFullUrl.js'
 
 const CircularsPanel = () => {
   const [circulars, setCirculars] = useState([])
@@ -410,16 +410,8 @@ const CircularsPanel = () => {
 
   const handleDownloadOriginal = () => {
     if (selectedCircular?.pdf) {
-      // Get the base URL without /api
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
-      const backendUrl = baseUrl.replace('/api', '')
-      
-      // Construct the full PDF URL - this goes directly to the static file
-      const pdfUrl = `${backendUrl}${selectedCircular.pdf}`
-      
-      console.log('Downloading PDF from:', pdfUrl)
-      
-      // Open the PDF in a new tab
+      const pdfUrl = getFullFileUrl(selectedCircular.pdf)
+      console.log('Opening PDF URL:', pdfUrl)
       window.open(pdfUrl, '_blank')
     }
   }
