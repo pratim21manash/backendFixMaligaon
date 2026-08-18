@@ -126,7 +126,6 @@
 
 
 
-
 import React, { useState, useEffect } from 'react'
 import { Download, FileText, FileCheck, FileSpreadsheet } from 'lucide-react'
 import PageHeader from '../components/common/PageHeader.jsx'
@@ -168,6 +167,40 @@ const Downloads = () => {
     const backendUrl = getBackendUrl()
     const filePath = url.startsWith('/') ? url : `/${url}`
     return `${backendUrl}${filePath}`
+  }
+
+  const handleDownloadFile = async (fileUrl, fileName) => {
+    if (!fileUrl) return
+    
+    try {
+      const fullUrl = getFullFileUrl(fileUrl)
+      console.log('Downloading file from:', fullUrl)
+      
+      // Fetch the file as a blob
+      const response = await fetch(fullUrl)
+      
+      if (!response.ok) {
+        throw new Error(`Failed to download file: ${response.status}`)
+      }
+      
+      const blob = await response.blob()
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      // Extract filename from URL or use provided name
+      const filename = fileName || fileUrl.split('/').pop() || 'download'
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      
+    } catch (error) {
+      console.error('Error downloading file:', error)
+      alert('Failed to download file. Please try again.')
+    }
   }
 
   const getFileIcon = (fileUrl) => {
@@ -225,11 +258,9 @@ const Downloads = () => {
                   <div className="space-y-3">
                     {groupedDownloads[category].map((item) => (
                       <SectionWrapper key={item._id} className="bg-white rounded-xl shadow-sm border border-gray-100">
-                        <a
-                          href={getFullFileUrl(item.file)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-4 p-4 hover:bg-maroon-50/50 rounded-xl transition-all duration-300 group"
+                        <button
+                          onClick={() => handleDownloadFile(item.file, item.title)}
+                          className="flex items-center gap-4 p-4 hover:bg-maroon-50/50 rounded-xl transition-all duration-300 group w-full text-left"
                         >
                           <span className="w-11 h-11 rounded-xl bg-maroon-50 text-maroon-800 flex items-center justify-center flex-shrink-0 group-hover:bg-maroon-100 transition-colors">
                             {getFileIcon(item.file)}
@@ -243,7 +274,7 @@ const Downloads = () => {
                             </p>
                           </div>
                           <Download size={18} className="text-gray-400 group-hover:text-maroon-600 transition-colors" />
-                        </a>
+                        </button>
                       </SectionWrapper>
                     ))}
                   </div>
