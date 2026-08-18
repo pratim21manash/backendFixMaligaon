@@ -209,7 +209,6 @@
 
 
 
-
 import React, { useState, useEffect } from 'react'
 import { Images, X } from 'lucide-react'
 import PageHeader from '../components/common/PageHeader.jsx'
@@ -310,6 +309,7 @@ const Gallery = () => {
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {event.images?.map((img, imgIndex) => {
+                      // CRITICAL: Use getFullFileUrl to get the correct URL
                       const imageUrl = getFullFileUrl(img.url)
                       console.log('Image URL:', imageUrl)
                       return (
@@ -325,7 +325,7 @@ const Gallery = () => {
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             onError={(e) => {
                               console.error('Failed to load image:', imageUrl)
-                              e.target.src = 'https://via.placeholder.com/400x300?text=No+Image'
+                              e.target.src = 'https://via.placeholder.com/400x300?text=Image+Not+Found'
                             }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">

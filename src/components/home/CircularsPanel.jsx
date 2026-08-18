@@ -300,8 +300,6 @@
 
 
 
-
-
 import React, { useState, useEffect } from 'react'
 import { Bell, Calendar, Clock, X, Download, FileText } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -410,6 +408,7 @@ const CircularsPanel = () => {
 
   const handleDownloadOriginal = () => {
     if (selectedCircular?.pdf) {
+      // CRITICAL: Use getFullFileUrl to get the correct URL
       const pdfUrl = getFullFileUrl(selectedCircular.pdf)
       console.log('Opening PDF URL:', pdfUrl)
       window.open(pdfUrl, '_blank')
@@ -427,7 +426,6 @@ const CircularsPanel = () => {
   return (
     <>
       <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden w-full max-w-sm h-full flex flex-col">
-        {/* Header */}
         <div className="bg-gradient-to-r from-maroon-800 to-maroon-700 px-4 py-3 flex items-center gap-2 flex-shrink-0">
           <Bell size={18} className="text-gold-400" />
           <h3 className="text-white font-semibold text-sm tracking-wide">Latest Circulars</h3>
@@ -436,12 +434,9 @@ const CircularsPanel = () => {
           </span>
         </div>
 
-        {/* Circulars List */}
         <div className="flex-1 divide-y divide-gray-100 overflow-y-auto min-h-0">
           {circulars.length === 0 ? (
-            <div className="p-6 text-center text-gray-400 text-sm">
-              No circulars available
-            </div>
+            <div className="p-6 text-center text-gray-400 text-sm">No circulars available</div>
           ) : (
             circulars.map((circular, index) => (
               <motion.div
@@ -477,7 +472,6 @@ const CircularsPanel = () => {
           )}
         </div>
 
-        {/* Footer */}
         <div className="bg-gray-50/80 px-4 py-2.5 border-t border-gray-100 flex-shrink-0">
           <p className="text-[10px] text-gray-500 font-medium tracking-wide text-center">
             {schoolInfo.shortName || schoolInfo.name} - {schoolInfo.branch}
@@ -485,7 +479,6 @@ const CircularsPanel = () => {
         </div>
       </div>
 
-      {/* Modal */}
       <AnimatePresence>
         {isModalOpen && selectedCircular && (
           <motion.div
@@ -503,21 +496,16 @@ const CircularsPanel = () => {
               className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Modal Header */}
               <div className="sticky top-0 bg-gradient-to-r from-maroon-800 to-maroon-700 px-6 py-4 flex items-center justify-between rounded-t-2xl">
                 <h3 className="text-white font-semibold text-lg flex items-center gap-2">
                   <Bell size={20} className="text-gold-400" />
                   Circular Details
                 </h3>
-                <button
-                  onClick={closeModal}
-                  className="text-white/70 hover:text-white transition-colors"
-                >
+                <button onClick={closeModal} className="text-white/70 hover:text-white transition-colors">
                   <X size={24} />
                 </button>
               </div>
 
-              {/* Modal Body */}
               <div className="p-6 space-y-4">
                 <h4 className="text-xl font-bold text-gray-800">{selectedCircular.title}</h4>
                 <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -532,9 +520,7 @@ const CircularsPanel = () => {
                 </div>
                 {selectedCircular.description && (
                   <div className="border-t border-gray-100 pt-4 mt-2">
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      {selectedCircular.description}
-                    </p>
+                    <p className="text-gray-600 text-sm leading-relaxed">{selectedCircular.description}</p>
                   </div>
                 )}
                 {selectedCircular.pdf && (
@@ -546,25 +532,16 @@ const CircularsPanel = () => {
                       <FileText size={16} />
                       Download Original PDF
                     </button>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Click to download the original circular PDF
-                    </p>
+                    <p className="text-xs text-gray-400 mt-1">Click to download the original circular PDF</p>
                   </div>
                 )}
               </div>
 
-              {/* Modal Footer */}
               <div className="px-6 py-4 bg-gray-50/80 border-t border-gray-100 rounded-b-2xl flex justify-end gap-3">
-                <button
-                  onClick={closeModal}
-                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
-                >
+                <button onClick={closeModal} className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors">
                   Close
                 </button>
-                <button
-                  onClick={handleDownloadPDF}
-                  className="px-4 py-2 bg-maroon-600 hover:bg-maroon-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
-                >
+                <button onClick={handleDownloadPDF} className="px-4 py-2 bg-maroon-600 hover:bg-maroon-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
                   <Download size={16} />
                   Download PDF
                 </button>

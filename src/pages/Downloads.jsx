@@ -123,7 +123,6 @@
 // }
 
 // export default Downloads
-
 import React, { useState, useEffect } from 'react'
 import { Download, FileText, FileCheck, FileSpreadsheet } from 'lucide-react'
 import PageHeader from '../components/common/PageHeader.jsx'
@@ -155,6 +154,7 @@ const Downloads = () => {
   const handleDownload = (fileUrl, fileName) => {
     if (!fileUrl) return
     
+    // CRITICAL: Use getFullFileUrl to get the correct URL
     const fullUrl = getFullFileUrl(fileUrl)
     console.log('Downloading from:', fullUrl)
     
